@@ -7,13 +7,11 @@
         let elementInnerHTML;
         let returnString;
 
-        if (arguments.length <= 3) {
-            Array.from(arguments).map(arg => {
-                if (arg.constructor === Boolean) returnString = arg;
-                else if (arg.constructor === String) elementInnerHTML = arg;
-                else if (arg.constructor === Object) elementArguments = arg;
-            });
-        }
+        Array.from(arguments).map(arg => {
+            if (arg.constructor === Boolean) returnString = arg;
+            else if (arg.constructor === String || arg.constructor === Number) elementInnerHTML = String(arg);
+            else if (arg.constructor === Object) elementArguments = arg;
+        });
 
         element.innerHTML = elementInnerHTML || "";
         Object.assign(element, elementArguments || {});

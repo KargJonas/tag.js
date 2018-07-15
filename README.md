@@ -1,7 +1,8 @@
-# tag.js
 ## tag.js is an extremely easy-to-use and lightweight HTML-creation library.
+## tag.custom.js allows you to create nom-standard HTML5-tags with non-standard attributes.
 
-It allows you to use html-tag-names (all HTML5 tags including `<center>` and excluding `<var>`) as functions.<br />
+# tag.js
+Allows you to use HTML-tag-names (all HTML5 tags including `<center>` and excluding `<var>`) as functions.<br />
 Each function accepts either zero or one string, boolean or object.<br />
 If more than one of each datatype is passed into the function, the last one is used.
 ### Example:
@@ -31,6 +32,26 @@ let myElement2 = p(
 ```js
 let myElement3 = div(
     "Its pretty empty in here..",
+    true
+);
+```
+
+#tag.custom.js
+It's a little different with this one.<br />
+instead of using one of the "html-tag-name-functions", a single `tag()` function is used to create all elements.<br />
+The first argument has to be the tag-name of the element you want to create. Accept from that everything is the same as with tag.js .
+
+###Example:
+```js
+let myVariable = 10;
+
+let myElement4 = tag(
+    "myCustomHtmlTag",  // camelcase is preserved when returned as string.
+    "This is the elements' innerHTML.",
+    {
+        "style": "color: green",
+        "myCustomProperty": myVariable
+    },
     true
 );
 ```
