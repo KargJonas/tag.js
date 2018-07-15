@@ -1,7 +1,7 @@
 # tag.js
 ## tag.js is an extremely easy-to-use and lightweight HTML-creation library.
 
-It allows you to use html-tag-names as functions.<br />
+It allows you to use html-tag-names (all HTML5 tags including `<center>` and excluding `<var>`) as functions.<br />
 Each function accepts either zero or one string, boolean or object.<br />
 If more than one of each datatype is passed into the function, the last one is used.
 ### Example:
