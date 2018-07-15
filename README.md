@@ -1,5 +1,5 @@
 ## tag.js is an extremely easy-to-use and lightweight HTML-creation library.
-## tag.custom.js allows you to create nom-standard HTML5-tags with non-standard attributes.
+## tag.custom.js allows you to create non-standard HTML5-tags with non-standard attributes.
 
 # tag.js
 Allows you to use HTML-tag-names (all HTML5 tags including `<center>` and excluding `<var>`) as functions.<br />
