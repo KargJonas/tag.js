@@ -7,7 +7,7 @@ If more than one of each datatype is passed into the function, the last one is u
 ### Example:
 ```js
 let myElement0 = h1("Hello world!", "My name is Bob.");
-// myElement0 would be <h1>My name id Bob.<h1>
+// myElement0 would be <h1>My name is Bob.<h1>
 ```
 
 The string defines the innerHTML of the returned element, the object contains the attributes and the boolean tells the function wether to return a string instead of an element or not.<br />
