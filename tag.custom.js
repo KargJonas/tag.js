@@ -17,16 +17,18 @@ function tag() {
         console.error(Error("(tag.custom.js):\nInvalid tag-name."));
         return null;
     };
-    
+
     let elementArguments;
     let elementInnerHTML = "";
     let returnString;
     args.shift();
 
     args.map(arg => {
-        if (arg.constructor === Boolean) returnString = arg;
-        else if (arg.constructor === String || arg.constructor === Number) elementInnerHTML = String(arg);
-        else if (arg.constructor === Object) elementArguments = arg;
+        if (arg) {
+            if (arg.constructor === Boolean) returnString = arg;
+            else if (arg.constructor === String || arg.constructor === Number) elementInnerHTML = String(arg);
+            else if (arg.constructor === Object) elementArguments = arg;
+        }
     });
 
     if (returnString) {
