@@ -36,12 +36,12 @@ let myElement3 = div(
 );
 ```
 
-#tag.custom.js
+# tag.custom.js
 It's a little different with this one.<br />
 instead of using one of the "html-tag-name-functions", a single `tag()` function is used to create all elements.<br />
 The first argument has to be the tag-name of the element you want to create. Accept from that everything is the same as with tag.js .
 
-###Example:
+### Example:
 ```js
 let myVariable = 10;
 
