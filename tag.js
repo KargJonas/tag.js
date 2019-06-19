@@ -3,6 +3,7 @@
     const isString = x => typeof x === 'string' || x instanceof String;
     const isNumber = x => typeof x === 'number' || x instanceof Number;
     const isBoolean = x => typeof x === 'boolean' || x instanceof Boolean;
+    const isObject = x => x.constructor === Object;
     const isNode = x => x instanceof HTMLElement;
     const isIterable = x => Symbol.iterator in Object(x);
 
@@ -19,9 +20,9 @@
 
             args.forEach(arg => {
                 if (isBoolean(arg)) returnString = arg;
-                else if (isNode(arg) || isString(arg) || isNumber(arg)) elementChildren = [arg];
+                else if (isObject(arg)) elementArguments = arg;
                 else if (isIterable(arg)) elementChildren = Array.from(arg);
-                else if (arg.constructor === Object) elementArguments = arg;
+                else elementChildren = [arg];
             });
 
             elementChildren.forEach(el => element.appendChild(liftElement(el)));
