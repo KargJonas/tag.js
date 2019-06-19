@@ -1,7 +1,5 @@
 // Jonas Karg 2018
 (() => {
-    const isString = x => typeof x === 'string' || x instanceof String;
-    const isNumber = x => typeof x === 'number' || x instanceof Number;
     const isBoolean = x => typeof x === 'boolean' || x instanceof Boolean;
     const isObject = x => x.constructor === Object;
     const isNode = x => x instanceof HTMLElement;
