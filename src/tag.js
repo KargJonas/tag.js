@@ -3,7 +3,7 @@
     "use strict";
     const isBoolean = x => typeof x === "boolean" || x instanceof Boolean;
     const isString = x => typeof x === 'string' || x instanceof String;
-    const isRawObject = x => x.constructor === Object;
+    const isRawObject = x => x && x.constructor === Object;
     const isNode = x => x instanceof HTMLElement;
     const isArrayLike = x => !isString(x) && Symbol.iterator in Object(x);
     const isNothing = x => x === null || x === undefined;
@@ -27,12 +27,16 @@
         "title", "tr", "track", "u", "ul", "video", "wbr"
     ];
 
+    const parseClasses = classes => {
+        if (isArrayLike(classes)) {
+            return Array.from(classes).map(parseClasses).join(' ');
+        } else if (isRawObject(classes)) {
+            return parseClasses(Object.keys(classes).filter(c => classes[c]));
+        } else return classes || "";
+    }
+
     const setAttributes = (el, {style, id, class: class_, className, ...attrs}) => {
-        if (!className) className = class_;
-        if (isArrayLike(className)) {
-            className = Array.from(className).join(' ');
-        }
-        if (className) el.className = className;
+        el.className = parseClasses(className || class_);
         if (id) el.id = id;
         if (isString(style)) el.style=style;
         else if (style) Object.assign(el.style, style);
