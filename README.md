@@ -101,7 +101,7 @@ p(["This becomes italic mid-",em("word"),"!"]).outerHTML;
 // => "<p>This becomes italic mid-<em>word</em>!</p>"
 ```
 
-> \<p>This becomes italic mid-\<em>word</em>!</p>
+> \<p>This becomes italic mid-\<em>word\</em>!\</p>
 
 However, if you are using custom tags and you want to preserve character case, there is a workaround available. `tagString()` computes attributes as normal, but then uses the original raw tag name, and does not render the children. As before, `tagString.prepare()` is available to prepare a specific tag, e.g. `const MyTagString = tagString.prepare('MyTag')`.
 
