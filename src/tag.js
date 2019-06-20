@@ -1,40 +1,47 @@
 import tags from "./taglist.json";
+import {
+    isString,
+    isRawObject,
+    isNode,
+    isArrayLike,
+    isNothing,
+    isRenderable
+} from "./typeChecking";
 
-const isString = x => typeof x === 'string' || x instanceof String;
-const isRawObject = x => x && x.constructor === Object;
-const isNode = x => x instanceof HTMLElement;
-const isArrayLike = x => !isString(x) && Symbol.iterator in Object(x);
-const isNothing = x => !x && x !== 0;
-const isRenderable = x => !isRawObject(x) && !isNothing(x);
+function liftElement(element) {
+    if (isNode(element)) return element;
+    return document.createTextNode(element);
+}
 
-const liftElement = el => isNode(el) ? el : document.createTextNode(el);
+function intercalateSpaces(elements) {
+    return elements.reduce((accumulator, current) => (
+        accumulator.concat((accumulator.length ? [" "] : []).concat(current))
+    ), []);
+}
 
-const intercalateSpaces = els => els.reduce((acc, b) => (
-    acc.concat((acc.length ? [' '] : []).concat(b))
-), []);
-
-const parseClasses = classes => {
+function parseClasses(classes) {
     if (isArrayLike(classes)) {
-        return Array.from(classes).map(parseClasses).join(' ');
+        return Array.from(classes).map(parseClasses).join(" ");
     } else if (isRawObject(classes)) {
         return parseClasses(Object.keys(classes).filter(c => classes[c]));
     } else return classes || "";
 }
 
-const setAttributes = (el, {
-    style, id, class: class_, className, ...attrs
-}) => {
+function setAttributes(el, {
+    style, id, class: class_, className, ...attributes
+}) {
     className = className || class_;
     if (className) el.className = parseClasses(className || class_);
     if (id) el.id = id;
     if (isString(style)) el.style = style;
     else if (style) Object.assign(el.style, style);
-    Object.entries(attrs).forEach(([attr, value]) =>
-        el.setAttribute(attr, value)
+
+    Object.entries(attributes).forEach(([attribute, value]) =>
+        el.setAttribute(attribute, value)
     );
 }
 
-const buildTag = tag => (...args) => {
+const buildTag = (tag) => (...args) => {
     const element = document.createElement(tag);
     let attributes = args.find(isRawObject);
     let children = intercalateSpaces(args.filter(isRenderable));
@@ -44,27 +51,27 @@ const buildTag = tag => (...args) => {
     return element;
 };
 
-tags.forEach(tag => {
-    window[tag] = buildTag(tag);
-});
+for (let tag of tags) {
+    window[tag] = buildTag(tag)
+}
 
-const tag = (tagName, ...args) => buildTag(tagName)(...args);
+function tag(tagName, ...args) {
+    return buildTag(tagName)(...args);
+};
+
 tag.prepare = buildTag;
 
-const elementToString = el => {
-    if (isNode(el)) return el.outerHTML;
-    else return el.toString();
+function elementToString(element) {
+    if (isNode(element)) return element.outerHTML;
+    else return element.toString();
 }
 
 const buildTagString = tagName => (...args) => {
-    // validate tag name
-    document.createElement(tagName);
+    const attributes = args.find(isRawObject);
+    const body = intercalateSpaces(args.filter(isRenderable))
+        .map(elementToString).join("");
 
-    let attributes = args.find(isRawObject);
-    let body = intercalateSpaces(args.filter(isRenderable))
-        .map(elementToString).join('');
-
-    return buildTag('x')(attributes, 'y').outerHTML.replace(
+    return buildTag("x")(attributes, "y").outerHTML.replace(
         /<x([\s\S]*)>y<\/x>/,
         `<${ tagName }$1>${ body }</${ tagName }>`
     );
@@ -78,6 +85,6 @@ tagString.escape = str => str
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(/"/g, "&#039;");
 
 export default tag;
