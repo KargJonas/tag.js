@@ -114,3 +114,5 @@ tagString("aB",
 
 // => "<aB>First child. I &lt;3 <code>tag.js</code> <em>so</em> much!</aB>"
 ```
+
+> \<aB>First child. I \&lt;3 \<code>tag.js\</code> \<em>so\</em> much!\</aB>
