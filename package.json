@@ -10,10 +10,11 @@
   "devDependencies": {
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.5",
+    "babel-plugin-import": "^1.12.0",
     "babel-preset-minify": "^0.5.0"
   },
   "scripts": {
-    "build": "babel src/tag.js > dist/tag.min.js && babel src/tag.custom.js > dist/tag.custom.min.js",
+    "build": "babel src/tag.js > dist/tag.min.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

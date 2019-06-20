@@ -1,4 +1,3 @@
-// Jonas Karg 2018
 (() => {
     "use strict";
     const isString = x => typeof x === 'string' || x instanceof String;
@@ -74,7 +73,7 @@
         if (isNode(el)) return el.outerHTML;
         else return el.toString();
     }
-    
+
     const buildTagString = tagName => (...args) => {
         // validate tag name
         document.createElement(tagName);
@@ -82,7 +81,7 @@
         let attributes = args.find(isRawObject);
         let body = intercalateSpaces(args.filter(isRenderable))
             .map(elementToString).join('');
-        
+
         return buildTag('x')(attributes, 'y').outerHTML.replace(
             /<x([\s\S]*)>y<\/x>/,
             `<${tagName}$1>${body}</${tagName}>`
