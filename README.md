@@ -30,11 +30,8 @@ p({style: {color: "red"}},
 //      This is just a test.
 //      <a href="https://google.com">Click here for Google</a>
 //    </p>
+
 ```
-
-> <p style="color: red">This is just a test. <a href="https://google.com">Click here for Google</a></p>
-
----
 
 Note that whitespace will be automatically inserted between arguments. To avoid this, wrap the elements to be rendered consecutively in an array.
 
@@ -83,7 +80,7 @@ tag('var', 'x');
 If you're going to be using a custom/unsupported tag frequently, you can bind it to a variable with `tag.prepare()`.
 
 ```js
-const varTag = tag.prepare('tag');
+const varTag = tag.prepare('var');
 varTag('y');
 
 // => <var>y</var>

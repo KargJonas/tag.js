@@ -8,13 +8,13 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.5",
-    "babel-plugin-import": "^1.12.0",
-    "babel-preset-minify": "^0.5.0"
+    "rollup": "^1.15.6",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-terser": "^5.0.0"
   },
   "scripts": {
-    "build": "babel src/tag.js > dist/tag.min.js",
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
