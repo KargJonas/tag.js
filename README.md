@@ -1,68 +1,118 @@
 
 # tag.js
-> `tag.js` is an extremely easy-to-use and lightweight HTML-creation library.
 
-> `tag.custom.js` allows you to create non-standard HTML5-tags with non-standard attributes.
+`tag.js` is an extremely easy-to-use and lightweight HTML-creation library. It allows you to use HTML tag names (all HTML5 tags including `<center>` and excluding `<var>`) as functions. Each function takes a list of elements as children, and optionally an object of attributes.
 
-## `tag.js`
+If more than one object of attributes is passed into the function, the first is used and subsequent attributes are ignored.
 
-Allows you to use HTML-tag-names (all HTML5 tags including `<center>` and excluding `<var>`) as functions.  
-Each function accepts either zero or one string, boolean or object.  
-If more than one of each datatype is passed into the function, the last one is used.
+## Examples
 
-## Example
+A single string will be rendered as the text content.
 
 ```js
-let myElement0 = h1("Hello world!", "My name is Bob.");
-// myElement0 would be <h1>My name is Bob.<h1>
+    h4("Hello world!");
+    // => <h4>Hello World</h4>
 ```
 
-The string defines the innerHTML of the returned element, the object contains the attributes and the boolean tells the function whether to return a string instead of an element or not.  
-The attributes can be arranged however you desire.  
-Invalid attributes are ignored.
+> <h4>Hello world!</h4>
 
-## This will generate a header containing the text "Hello World!"
+---
 
-```js
-let myElement1 = h1("Hello world!");
-```
-
-## This will be a red paragraph containing the text "This is just a test.", followed by a link to Google
+Attributes can be given by a object. Multiple children can be provided, which can be other elements.
 
 ```js
-let myElement2 = p({style: {color: "red"}}, [
-    "This is just a test. ",
+p({style: {color: "red"}},
+    "This is just a test.",
     a({href: "https://google.com"}, "Click here for Google")
-]);
+);
+
+// => <p style="color: red">
+//      This is just a test.
+//      <a href="https://google.com">Click here for Google</a>
+//    </p>
 ```
 
-## In this case "myElement3" will be a string. Its content is going to be `<div class="a b c">It's pretty empty in here.</div>`
+> <p style="color: red">This is just a test. <a href="https://google.com">Click here for Google</a></p>
+
+---
+
+Note that whitespace will be automatically inserted between arguments. To avoid this, wrap the elements to be rendered consecutively in an array.
 
 ```js
-let myElement3 = div({class: ['a','b', {c: true}]},
-    "It's pretty empty in here.",
-    true
-);
+p(["This becomes italic mid-",em("word"),"!"]);
+
+// => <p>This becomes italic mid-<em>word</em>!</p>
 ```
 
-## `tag.custom.js`
+> <p>This becomes italic mid-<em>word</em>!</p>
 
-It's a little different with this one.  
-instead of using one of the "html-tag-name-functions", a single `tag()` function is used to create all elements.  
-The first argument has to be the tag-name of the element you want to create. Accept from that everything is the same as with tag.js.
+---
 
-### Example
+Falsy values (except zero) will not be rendered, so `&&` can be used to optionally render a child.
 
 ```js
-let myVariable = 10;
+p('It is', !friday && 'not', 'Friday today');
 
-let myElement4 = tag(
-    "myCustomHtmlTag",  // camelcase is preserved when returned as string.
-    "This is the elements' innerHTML.",
-    {
-        "style": "color: green",
-        "myCustomProperty": myVariable
-    },
-    true
-);
+// If `friday` is true:
+//   => <p>It is Friday today</p>
+// otherwise
+//   => <p>It is not Friday today</p>
 ```
+
+Either
+> <p>It is Friday today</p>
+or
+> <p>It is not Friday today</p>
+
+---
+
+What about if we want to dynamically choose the name of the tag, or use a custom or otherwise unsupported tag? That's where the `tag()` function comes in. It works exactly like the functions for the specific elements above, except with an additional first argument for the tag name.
+
+Note that this is case-insensitive, and the browser will discard any case information. The name is allowed to contain any characters allowed in JavaScript variable names, and dots and hyphens too (except at the start).
+
+```js
+tag('var', 'x');
+
+// => <var>x</var>
+```
+
+> <var>x</var>
+
+---
+
+If you're going to be using a custom/unsupported tag frequently, you can bind it to a variable with `tag.prepare()`.
+
+```js
+const varTag = tag.prepare('tag');
+varTag('y');
+
+// => <var>y</var>
+```
+
+> <var>y</var>
+
+---
+
+If you need to use a tag as a string, one way to do so would be the `.outerHTML` attribute.
+
+```js
+p(["This becomes italic mid-",em("word"),"!"]).outerHTML;
+
+// => "<p>This becomes italic mid-<em>word</em>!</p>"
+```
+
+> \<p>This becomes italic mid-\<em>word\</em>!\</p>
+
+However, if you are using custom tags and you want to preserve character case, there is a workaround available. `tagString()` computes attributes as normal, but then uses the original raw tag name, and does not render the children. As before, `tagString.prepare()` is available to prepare a specific tag, e.g. `const MyTagString = tagString.prepare('MyTag')`.
+
+This means that any special characters (`&<"'`) in the children are not escaped, so HTML code can be passed through. For this reason, a helper function `tagString.escape()` is provided.
+
+```js
+tagString("aB",
+    tagString.escape("I <3"), code("tag.js"), tagString("em","so"), "much!"
+);
+
+// => "<aB>First child. I &lt;3 <code>tag.js</code> <em>so</em> much!</aB>"
+```
+
+> \<aB>First child. I \&lt;3 \<code>tag.js\</code> \<em>so\</em> much!\</aB>

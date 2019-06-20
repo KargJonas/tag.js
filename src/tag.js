@@ -1,14 +1,18 @@
 // Jonas Karg 2018
 (() => {
     "use strict";
-    const isBoolean = x => typeof x === "boolean" || x instanceof Boolean;
     const isString = x => typeof x === 'string' || x instanceof String;
     const isRawObject = x => x && x.constructor === Object;
     const isNode = x => x instanceof HTMLElement;
     const isArrayLike = x => !isString(x) && Symbol.iterator in Object(x);
-    const isNothing = x => x === null || x === undefined;
+    const isNothing = x => !x && x !== 0;
+    const isRenderable = x => !isRawObject(x) && !isNothing(x);
 
     const liftElement = el => isNode(el) ? el : document.createTextNode(el);
+
+    const intercalateSpaces = els => els.reduce((acc, b) => (
+        acc.concat((acc.length ? [' '] : []).concat(b))
+    ), []);
 
     const tags = [
         "a", "abbr", "address", "area", "article", "aside", "audio",
@@ -35,8 +39,11 @@
         } else return classes || "";
     }
 
-    const setAttributes = (el, {style, id, class: class_, className, ...attrs}) => {
-        el.className = parseClasses(className || class_);
+    const setAttributes = (el, {
+        style, id, class: class_, className, ...attrs
+    }) => {
+        className = className || class_;
+        if (className) el.className = parseClasses(className || class_);
         if (id) el.id = id;
         if (isString(style)) el.style=style;
         else if (style) Object.assign(el.style, style);
@@ -45,25 +52,49 @@
         );
     }
 
+    const buildTag = tag => (...args) => {
+        const element = document.createElement(tag);
+        let attributes = args.find(isRawObject);
+        let children = intercalateSpaces(args.filter(isRenderable));
+
+        children.forEach(el => element.appendChild(liftElement(el)));
+        if (attributes) setAttributes(element, attributes);
+        return element;
+    };
+
     tags.forEach(tag => {
-        window[tag] = (...args) => {
-            const element = document.createElement(tag);
-            let attributes;
-            let children = [];
-            let returnString = false;
-
-            args.forEach(arg => {
-                if (isBoolean(arg)) returnString = arg;
-                else if (isRawObject(arg)) attributes = arg;
-                else if (isArrayLike(arg)) children = Array.from(arg);
-                else if (!isNothing(arg)) children = [arg];
-            });
-
-            children.forEach(el => element.appendChild(liftElement(el)));
-            if (attributes) setAttributes(element, attributes);
-
-            if (returnString) return element.outerHTML;
-            return element;
-        }
+        window[tag] = buildTag(tag);
     });
+
+    window.tag = (tagName, ...args) => buildTag(tagName)(...args);
+
+    window.tag.prepare = buildTag;
+
+    const elementToString = el => {
+        if (isNode(el)) return el.outerHTML;
+        else return el.toString();
+    }
+    
+    const buildTagString = tagName => (...args) => {
+        // validate tag name
+        document.createElement(tagName);
+
+        let attributes = args.find(isRawObject);
+        let body = intercalateSpaces(args.filter(isRenderable))
+            .map(elementToString).join('');
+        
+        return buildTag('x')(attributes, 'y').outerHTML.replace(
+            /<x([\s\S]*)>y<\/x>/,
+            `<${tagName}$1>${body}</${tagName}>`
+        );
+    };
+    window.tagString = (tagName, ...args) => buildTagString(tagName)(...args);
+    window.tagString.prepare = buildTagString;
+
+    tagString.escape = str => str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
 })();
