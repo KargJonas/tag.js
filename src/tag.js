@@ -4,7 +4,7 @@ import {
     isRawObject,
     isNode,
     isArrayLike,
-    isNothing,
+    // isNothing,
     isRenderable
 } from "./typeChecking";
 
@@ -57,7 +57,7 @@ for (let tag of tags) {
 
 function tag(tagName, ...args) {
     return buildTag(tagName)(...args);
-};
+}
 
 tag.prepare = buildTag;
 
@@ -66,21 +66,35 @@ function elementToString(element) {
     else return element.toString();
 }
 
-const buildTagString = tagName => (...args) => {
-    const attributes = args.find(isRawObject);
-    const body = intercalateSpaces(args.filter(isRenderable))
+const buildTagString = (tagName) => (...args) => {
+    const innerHTML = intercalateSpaces(args.filter(isRenderable))
         .map(elementToString).join("");
 
-    return buildTag("x")(attributes, "y").outerHTML.replace(
-        /<x([\s\S]*)>y<\/x>/,
-        `<${ tagName }$1>${ body }</${ tagName }>`
-    );
+    let attributes = args.find(isRawObject);
+
+    if (attributes) {
+        attributes = Object
+        .keys(attributes)
+        .map((key) => {
+            const name = key;
+            const value = attributes[key];
+
+            if (value) return `${name}="${value}"`;
+            return name;
+        }).join(" ");
+
+        return `<${ tagName } ${ attributes }>${ innerHTML }</${ tagName }>`;
+    }
+
+    return `<${ tagName }>${ innerHTML }</${ tagName }>`;
 };
 
-window.tagString = (tagName, ...args) => buildTagString(tagName)(...args);
-tagString.prepare = buildTagString;
+tag.string = function (tagName, ...args) {
+    return buildTagString(tagName)(...args);
+};
 
-tagString.escape = str => str
+tag.string.prepare = buildTagString;
+tag.string.escape = (str) => str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")

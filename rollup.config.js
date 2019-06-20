@@ -10,6 +10,7 @@ export default {
     output: {
         file: "dist/tag.min.js",
         format: "iife",
-        name: "tag"
+        name: "tag",
+        sourcemap: process.argv.includes("-w") ? "inline" : false
     }
 };
