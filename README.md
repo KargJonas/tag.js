@@ -31,7 +31,7 @@ p({style: {color: "red"}},
 //      <a href="https://google.com">Click here for Google</a>
 //    </p>
 
----
+```
 
 Note that whitespace will be automatically inserted between arguments. To avoid this, wrap the elements to be rendered consecutively in an array.
 
