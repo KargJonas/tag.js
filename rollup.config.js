@@ -5,12 +5,12 @@ export default {
     input: "src/tag.js",
     plugins: [
         json(),
-        terser()
+        terser(),
     ],
     output: {
-        file: "dist/tag.min.js",
+        file: "demo/dist/tag.min.js",
         format: "iife",
         name: "tag",
-        sourcemap: process.argv.includes("-w") ? "inline" : false
+        sourcemap: process.argv.includes("-w") ? "inline" : false,
     }
 };
