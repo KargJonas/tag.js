@@ -15,7 +15,7 @@ function liftElement(element) {
 
 function intercalateSpaces(elements) {
     return elements.reduce((accumulator, current) => (
-        accumulator.concat((accumulator.length ? [" "] : []).concat(current))
+        accumulator.concat((accumulator.length ? ["\n"] : []).concat(current))
     ), []);
 }
 
@@ -43,7 +43,7 @@ function setAttributes(el, {
     });
 }
 
-const buildTag = (tag) => (...args) => {
+const buildTagNode = (tag) => (...args) => {
     const element = document.createElement(tag);
     let attributes = args.find(isRawObject);
     let children = intercalateSpaces(args.filter(isRenderable));
@@ -53,20 +53,8 @@ const buildTag = (tag) => (...args) => {
     return element;
 };
 
-for (let tag of tags) {
-    window[tag] = buildTag(tag)
-}
-
-function tag(tagName, ...args) {
-    return buildTag(tagName)(...args);
-}
-
-tag.prepare = buildTag;
-
-function elementToString(element) {
-    if (isNode(element)) return element.outerHTML;
-    else return element.toString();
-}
+const elementToString = element =>
+    isNode(element) ? element.outerHTML : element.toString();
 
 const buildTagString = (tagName) => (...args) => {
     const innerHTML = intercalateSpaces(args.filter(isRenderable))
@@ -74,33 +62,44 @@ const buildTagString = (tagName) => (...args) => {
 
     let attributes = args.find(isRawObject);
 
-    if (attributes) {
-        attributes = Object
-        .keys(attributes)
-        .map((key) => {
-            const name = key;
-            const value = attributes[key];
+    const tagNameEscaped = tagName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-            if (value) return `${name}="${value}"`;
-            return name;
-        }).join(" ");
-
-        return `<${ tagName } ${ attributes }>${ innerHTML }</${ tagName }>`;
-    }
-
-    return `<${ tagName }>${ innerHTML }</${ tagName }>`;
+    return buildTagNode(tagName)(attributes, "y").outerHTML.replace(
+        RegExp(`>y</${tagNameEscaped}>$`,'i'),
+        `>${innerHTML}</${tagName}>`,
+    );
 };
 
-tag.string = function (tagName, ...args) {
-    return buildTagString(tagName)(...args);
+function Overload(f, props = {}, handler) {
+    const obj = Object.freeze(Object.assign(f, props));
+    return Proxy && handler ? new Proxy(obj, handler) : obj;
+}
+
+const buildTag = tag => Overload(buildTagNode(tag), {
+    string: buildTagString(tag),
+});
+
+const getAsPrepare = {
+    get(target, prop) {
+        if (prop in target) return target[prop];
+        return target.prepare(prop);
+    },
+    has() { return true },
 };
 
-tag.string.prepare = buildTagString;
-tag.string.escape = (str) => str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/"/g, "&#039;");
+export default Overload((t, ...args) => buildTag(t)(...args), {
+    prepare: buildTag,
+    string: Overload((t, ...args) => buildTagString(t)(...args), {
+        prepare: buildTagString,
+        escape: str => str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/"/g, "&#039;"),
+    }, getAsPrepare),
+}, getAsPrepare);
 
-export default tag;
+if (window) for (let t of tags) {
+    window[t] = buildTag(t);
+}
