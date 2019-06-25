@@ -185,6 +185,15 @@
             a node-based function, calling the string method on that will
             be the best option.
           `),
+          p(`
+            Please also be aware that event handlers will only be exported if
+            they are given as strings, not functions. For example,`, code(
+            `a.string({ onclick: function(e) {alert(e.target.innerText) }},
+            'text')`), `will not work, so instead you will need to use the
+            string form,`, ['(', code(
+            `a.string({ onclick: 'alert(event.target.innerText);' },'text')`),
+            ').'], `
+          `),
         )
       )
     </script>
