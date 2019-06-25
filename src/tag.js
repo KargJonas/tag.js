@@ -4,7 +4,7 @@ import {
     isRawObject,
     isNode,
     isArrayLike,
-    // isNothing,
+    isNothing,
     isRenderable
 } from "./typeChecking";
 
@@ -39,7 +39,7 @@ function setAttributes(el, {
     Object.entries(attributes).forEach(([attribute, value]) => {
         if (value instanceof Function) el[attribute] = value;
         else if (value === true) el.setAttribute(attribute, attribute);
-        else if (value !== false) el.setAttribute(attribute, value);
+        else if (isNothing(value)) el.setAttribute(attribute, value);
     });
 }
 
