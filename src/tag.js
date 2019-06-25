@@ -31,14 +31,16 @@ function setAttributes(el, {
     style, id, class: class_, className, ...attributes
 }) {
     className = className || class_;
-    if (className) el.className = parseClasses(className || class_);
+    if (className) el.className = parseClasses(className);
     if (id) el.id = id;
     if (isString(style)) el.style = style;
     else if (style) Object.assign(el.style, style);
 
-    Object.entries(attributes).forEach(([attribute, value]) =>
-        el.setAttribute(attribute, value)
-    );
+    Object.entries(attributes).forEach(([attribute, value]) => {
+        if (value instanceof Function) el[attribute] = value;
+        else if (value === true) el.setAttribute(attribute, attribute);
+        else if (value !== false) el.setAttribute(attribute, value);
+    });
 }
 
 const buildTag = (tag) => (...args) => {
