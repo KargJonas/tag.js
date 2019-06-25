@@ -67,7 +67,7 @@ const buildTagString = (tagName) => (...args) => {
   return buildTagNode(tagName)(attributes, "y").outerHTML.replace(
     RegExp(`>y</${tagNameEscaped}>$`,'i'),
     `>${innerHTML}</${tagName}>`,
-  );
+  ).replace(RegExp(`^<${tagNameEscaped}`,'i'), `<${tagName}`);
 };
 
 function Overload(f, props = {}, handler) {
