@@ -77,7 +77,7 @@ tag('var', 'x');
 
 ---
 
-If you're going to be using a custom/unsupported tag frequently, you can bind it to a variable with `tag.prepare()`.
+If you're going to be using a custom/unsupported tag frequently, you can bind it to a variable with `tag.prepare()`, or with `tag[]` (this latter form is not supported in Internet Explorer, and does not work with tags called `"call"`, `"apply"` or `"prepare"`).
 
 ```js
 const varTag = tag.prepare('var');
@@ -100,7 +100,7 @@ p(["This becomes italic mid-",em("word"),"!"]).outerHTML;
 
 > \<p>This becomes italic mid-\<em>word\</em>!\</p>
 
-However, if you are using custom tags and you want to preserve character case, there is a workaround available. `tag.string()` computes attributes as normal, but then uses the original raw tag name, and does not render the children. As before, `tag.string.prepare()` is available to prepare a specific tag, e.g. `const MyTagString = tag.string.prepare('MyTag')`.
+However, if you are using custom tags and you want to preserve character case, there is a workaround available. `tag.string()` computes attributes as normal, but then uses the original raw tag name, and does not render the children. As before, `tag.string.prepare()`/`tag.string[]`/`tag.prepare().string`/`tag[].string` is available to prepare a specific tag, e.g. `const MyTagString = tag.string['MyTag']`.
 
 This means that any special characters (`&<"'`) in the children are not escaped, so HTML code can be passed through. For this reason, a helper function `tag.string.escape()` is provided.
 

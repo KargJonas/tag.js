@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" /> 
+    <title>Tag.js example</title>
+    <script src="lib/prism.js"></script>
+    <link rel="stylesheet" href="lib/prism.css">
+    <script src="dist/tag.min.js"></script>
+    <script>
+      Object.defineProperty(window,'script', { get() {
+        return document.scripts[document.scripts.length-1];
+      }});
+
+      Object.defineProperty(window,'scriptCode', { get() {
+        return deindent(script.innerHTML, 1, 1);
+      }});
+
+      const removeLines = (i, j, source) =>
+        source
+          .replace(/^(\s*\n)+([\s\S*]+?)(\n\s*)+$/, "$2")
+          .split('\n').slice(i,j ? -j : undefined).join('\n');
+      
+      const deindent = (code, i=0, j=0) =>
+        removeLines(i, j, code)
+          .replace(/^[\s]*?\n?( +)([\S\s]*?)\s*$/, (_,space,body) =>
+            body.replace(new RegExp(`^${space}`, 'mg'),''));
+
+      const addHere = (...elements) => {
+        elements.map(el => script.insertAdjacentElement('beforebegin', el));
+      }
+
+      const addWithSource = (...elements) => {
+        addHere(...elements, pre(code({ class: 'language-js' }, scriptCode)));
+      }
+    </script>
+    <style>
+      pre[class*="language-"] {
+        font-size: 0.9em;
+      }
+      var {
+        font-family: monospace;
+      }
+      body {
+        max-width: 50em;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 3em;
+        padding-right: 3em;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      addWithSource(
+        header(
+          h1({ style: { borderBottom: 'thin solid #aaa' } },
+            "This is", code('tag.js'),
+          ),
+          p(
+            a({ href: 'https://github.com/KargJonas/tag.js' }, 
+              "View on GitHub",
+            ),
+            "•",
+            a({ href: 'dist/tag.js', download: 'tag.js' },
+              "Download minified",
+            ),
+          ),
+        )
+      );
+    </script>
+    <script>
+      addWithSource(
+        section(
+          h3("Basic usage"),
+          p(`
+            There is a function for every element (except`, code('<var>'), `for
+            techical reasons).  This function takes any number of arguments,
+            each of which can be elements or strings to be added children to
+            that element.
+          `),
+          p(
+            "If these are inline elements, please note that whitespace will",
+            "be inserted between them automatically. To avoid this, wrap the",
+            ["elements that need to be kept together in an array", "."]
+          ),
+        )
+      )
+    </script>
+    <script>
+      addWithSource(
+        section(
+          h3({ id: 'attributes' }, "Attributes"),
+          p([`
+            You can also pass an object of attributes to the element, for
+            example to specify the target of a `, a({ href: '#attributes' },
+            'link'), `.
+          `]),
+          p(`
+            In HTML, every attribute has to be a string. Here, we support a few
+            other types:
+          `),
+          ul(
+            li('The', code('style'), `attribute can take an object of styles,
+              or a string. The object's keys can be either the CSS or the
+              JavaScript property name, e.g. both`, code('font-sze'), `and`,
+              code('fontSize'), `are supported.`),
+            li([`Event handlers can be functions as well as strings. Note that
+              arrow functions do not bind `,code('this'),`, so if you need to
+              access the element (as opposed to the event target), you will
+              need to use an anonymous function.`]),
+            li(`Any other value will be cast to a string, so it is perfectly
+              valid to use a number as an attribute value.`),
+          ),
+        )
+      )
+    </script>
+    <script>
+      const customElement = tag.prepare('custom-element');
+      const varName = tag['var'];
+    </script>
+    <script>
+      addWithSource(
+        section(
+          h3("Custom elements"),
+          tag('p', `
+            If the tag you need is not supported, for example with a custom
+            element, you can use the generic`, tag('var',
+            { style: { fontFamily: 'monospace' }}, `tag()`), `function. This
+            takes the tag name as the first argument, and then the rest of the
+            arguments work just like the element-specific functions above.
+          `),
+          tag('p', `
+            What about if you're going to be using a custom tag often? You can
+            prepare a new tag function, with either`, code(`tag.prepare()`),
+            `or`, [code(`tag[]`), `.`], `Note that`, code(`tag[]`), `is
+            slightly more restrictive: it doesn't work with`,
+            [varName(`"prepare"`), ','], varName(`"call"`), 'or',
+            [varName(`"apply"`), ','], `due to JavaScript restrictions. This
+            notation also does not work in Internet Explorer.
+          `),
+          pre(code({ class: 'language-js' },
+            `const customElement = tag.prepare('custom-element');`,
+            `const varName = tag['var'];`,
+          )),
+        )
+      )
+    </script>
+    <script>
+      addWithSource(
+        section(
+          h3("Getting strings"),
+          p(`
+            Sometimes what you need is not an element itself, but a string
+            representation of it. The simplest way of doing this is by calling
+            a function as above and then putting the output through`,
+            code(`.toString()`), `to get the HTML representation. However, this
+            method comes with one big restriction: HTML stores tag names
+            case-insensitively, so all the tag names will be cast to lower-case
+            in the output. This can be a problem if the output is being used in
+            another framework.
+          `),
+          p(`In order to avoid this, we have provided some string-based helper
+            functions too. All the tag functions have a`, varName(`string`),
+            `method, e.g.`, code(`p.string('text &amp; more')`), `returns`,
+            [code(`<p>text &amp; more</p>`), '.'], ` Note that the string-based
+            arguments are not escaped, but must be passed through verbatim. If
+            you do need to escape a string for HTML, use the helper method`,
+            [code(`tag.string.escape(text)`), '.']),
+          p(`
+            Custom elements can be used with`,
+            [code(`tag.string('A.B', text)`), ','], `and there are a few
+            different ways to prepare them:
+          `),
+          ol(
+            li(code(`tag.string.prepare('A.B')`)),
+            li(code(`tag.string['A.B']`)),
+            li(code(`tag.prepare('A.B').string`)),
+            li(code(`tag['A.B'].string`)),
+          ),
+          p(`
+            Note that 2 and 4 have the same restrictions as above due to the
+            square bracket access, and that the first two are more efficient
+            than the latter two, as they do not need to construct the
+            node-based function too. However, if you have already generated
+            a node-based function, calling the string method on that will
+            be the best option.
+          `),
+          p(`
+            Please also be aware that event handlers will only be exported if
+            they are given as strings, not functions. For example,`, code(
+            `a.string({ onclick: function(e) {alert(e.target.innerText) }},
+            'text')`), `will not work, so instead you will need to use the
+            string form,`, ['(', code(
+            `a.string({ onclick: 'alert(event.target.innerText);' },'text')`),
+            ').'], `
+          `),
+        )
+      )
+    </script>
+  </body>
+</html>
